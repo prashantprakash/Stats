@@ -1,0 +1,18 @@
+{
+    "contents" : "\" This fucntion takes input as number of Simulation of trials and \n  return as mean of experiment performed\"\ncalExpectedValue <- function(nSteps) {\nnExp <- 3 \nrate <- 0.2\n# replciating the experiment number of times as entered by the user \n# rate is 0.2 /min becasue mean is given as 5 min \nX <- replicate(nSteps,max(rexp(nExp,rate = rate)))\n# Building histogram \n# opening new window everytime\ndev.new()\nhist(X,probability = TRUE ,main = \"Histogram\" , col =\"blue\")\n# building curve\ncurve(0.6*(1-exp(-0.2*x))^2*exp(-0.2*x), add = TRUE , col = \"red\")\n# calculation mean \nexpValue <- mean(X)\nreturn (expValue)\n}\n# Initial Setup to perform experiment\nnSteps <- 100000\nnTrials <-1\n# replication of whole experiment n number of times\nexpValue <-replicate(nTrials,calExpectedValue(nSteps))\n# expvalue is a vector which contains mean for all trials \nexpValue\n\n",
+    "created" : 1442772148576.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2420616030",
+    "id" : "8EF7ADAA",
+    "lastKnownWriteTime" : 1442952235,
+    "path" : "~/GitHub/Stats/MiniProj1/mini1.R",
+    "project_path" : "mini1.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
