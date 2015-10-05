@@ -1,0 +1,17 @@
+install.packages("xlsx")
+
+library(xlsx)
+
+hpi.data <- read.xlsx("C:\\Users\\PRASHANT\\Downloads\\hpi-data.xlsx", sheetName ="Rank Order" , colIndex= 2:10, rowIndex =7:158)
+hist(hpi.data$Happy.Planet.Index)
+hpi.data.lifeexp <- hpi.data[,c("Life..Expectancy","Happy.Planet.Index")]
+plot(hpi.data.lifeexp, main="Life Expectancy and HPI", pch=19)
+hpi.data.footprint <-hpi.data[,c("Footprint..gha.capita.","Happy.Planet.Index")]
+plot(hpi.data.footprint, main="Footprint Capita and HPI", pch=19)
+hpi.data.wellbeing<- hpi.data[,c("Well.being..0.10.","Happy.Planet.Index")]
+plot(hpi.data.wellbeing, main="WellBeing and HPI", pch=19)
+
+# capturing correlation 
+cor(hpi.data$Footprint..gha.capita.,hpi.data$Happy.Planet.Index ,use ="everything", method = c("pearson"))
+cor(hpi.data$Well.being..0.10.,hpi.data$Happy.Planet.Index ,use ="everything", method = c("pearson"))
+cor(hpi.data$Life..Expectancy,hpi.data$Happy.Planet.Index ,use ="everything", method = c("pearson"))
