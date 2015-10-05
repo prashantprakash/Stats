@@ -1,0 +1,59 @@
+library(gdata) # to read from xls file
+library(raster) # to get map shape file
+library(ggplot2) # for plotting and miscellaneuous things
+library(ggmap) # for plotting
+library(plyr) # for merging datasets
+library(scales) # to get nice looking legends
+library(maps) #
+
+# get the plot object
+
+# Get a shape file of states of India
+
+usa.shape <- getData("GADM", country = "USA", level = 1)
+
+# check the plot 
+plot(usa.shape)
+
+
+# To merge  data to the shape file, convert the shape file into a dataframe
+
+usa.df <- fortify(usa.shape)
+
+# Add the state names to the data frame
+
+usa.df$id <- as.numeric(usa.df$id)
+
+state.names <- data.frame(id = 1:length(usa.shape$NAME_1), state = usa.shape$NAME_1)	
+usa.df <- join(usa.df, state.names, by = "id", type = "inner")
+
+# loading data
+usa.data <- read.xls("C:\\Users\\PRASHANT\\Downloads\\usstatesWTID.xls",header=TRUE);
+usa.filtercol.data <-  usa.data[,c("Year","State","Top01_adj")];
+usa.year.data <-  subset(usa.filtercol.data, Year == 1999)
+
+usa.df <- join(usa.df, usa.year.data, by = "state", type = "inner")
+
+# loading df data again 
+
+usa.df <- map_data("state")
+
+colnames(usa.df) [5] <- "state"
+
+brks <- c(5, 7, 9, 11, 13, 15)
+
+p <- ggplot() +
+# with borders (slower)
+	geom_polygon(data = usa.df, aes(x = long, y = lat, group = group, fill = Top01_adj), 
+		color = "black", size = 0.15) +
+# without borders(faster)
+# 	geom_polygon(data = india.df, aes(x = long, y = lat, group = group, fill = sexratio), 
+#		color = "black", size = 0.25) +	
+	scale_fill_distiller(palette = "Reds", breaks = brks, trans = "reverse") +
+	theme_nothing(legend = TRUE) +
+	labs(title = "Top01% 1999", fill = "")	
+	
+ggsave(p, file = "top1_1999_map.pdf")
+
+
+
