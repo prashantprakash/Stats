@@ -60,56 +60,77 @@ ggsave(p, file = "top1_1999_map.pdf")
 
 
 2-a Final
+# including all libraries 
+library(gdata) # to read from xls file
+library(raster) # to get map shape file
+library(ggplot2) # for plotting and miscellaneuous things
+library(ggmap) # for plotting
+library(plyr) # for merging datasets
+library(scales) # to get nice looking legends
+library(maps) # for plotting map
 
+# getting usa shape object to plot the map , parameter USA is passed to get details about USA
 usa.shape <- getData("GADM", country = "USA", level = 1)
+# building data frame for all states
 usa.df <- map_data("state")
+# assigning the column name as state which is same as from xls file loaded  in next step
 colnames(usa.df) [5] <- "state"
 
-
+# loading data from the file , note that the column state has been changed to lowercase to join from map
 usa.data <- read.xls("C:\\Users\\PRASHANT\\Downloads\\usstatesWTID.xls",header=TRUE);
-usa.filtercol.data <-  usa.data[,c("Year","state","Top01_adj")];
+# filtering only three columns Year,State and Top1_adj which is required to build map
+usa.filtercol.data <-  usa.data[,c("Year","state","Top1_adj")];
+# filtering data from filtered set only for year 1999
 usa.1999.data <-  subset(usa.filtercol.data, Year == 1999)
+# filtering data from filtered set only for year 2012
 usa.2012.data <-  subset(usa.filtercol.data, Year == 2012)
+
+# merging data set obtained for year 1999 and 2012 on key state so that all the three plots can be handled from one data frame only
 mergeddataset=merge(usa.1999.data,usa.2012.data,by="state")
 mergeddataset$diff <- 0.00
-mergeddataset$diff <- mergeddataset$Top01_adj.y - mergeddataset$Top01_adj.x
+mergeddataset$diff <- mergeddataset$Top1_adj.y - mergeddataset$Top1_adj.x
 
-# usa.diff.data <- data.frame(state= character(52), diff= double(2))
-# usa.diff.data$state <- usa.1999.data$state
-# usa.diff.data$diff <- c(usa.2012.data$Top01_adj - usa.1999.data$Top01_adj)
+# joining the data set obtained in previous set with the map dataset based on state 
 usa.df <- join(usa.df, mergeddataset, by = "state", type = "inner")
+
+# getting all statenames help to annotate the map
 state.names <- data.frame(id = 1:length(usa.shape$NAME_1), state = usa.shape$NAME_1)
 statenames<-data.frame(state.center,state.abb,tolower(state.names))	
 
-
-brks <- c(5, 7, 9, 11, 13, 15)
-brksdiff <-c(-6, - 4 , -2 , 0 , 2 , 4 )
+# these breaks are decided based on seeing the min , mean , max for the columns to plot
+# for 1999 , min : 10.74 , max : 28.152  mean:  17.49
+# for 2012 , min : 12.50 , max : 33.00   mean:  19.39
+# for diff , min : -10.16 , max : 9.02   mean:  1.90
+brks <- c(15, 17.5, 20, 22.5, 25, 27.5,30)
+brksdiff <-c(-6, - 4 , -2 , 0 , 2 , 4 , 6, 8)
 
 # plot for year 1999
 p <- ggplot() +
 # with borders (slower)
-	geom_polygon(data = usa.df, aes(x = long, y = lat, group = group, fill = Top01_adj), 
+	geom_polygon(data = usa.df, aes(x = long, y = lat, group = group, fill = Top1_adj.x), 
 		color = "black", size = 0.15) +
-	scale_fill_distiller(palette = "Reds", breaks = brks1999, trans = "reverse") +
+	scale_fill_distiller(palette = "Reds", breaks = brks, trans = "reverse") +
 	theme_nothing(legend = TRUE) +
 	labs(title = "Top01% 1999", fill = "") +
 	geom_text(data=statenames,aes(x,y,label = state.abb),color="blue",size=3)
-	
+
+# saving the plot as pdf file	
 ggsave(p, file = "top1_1999_map.pdf")
 
-# plot for year 2012 min = 4.977376 max =18.71865 mean =9.31321 
+# plot for year 2012 
 q <- ggplot() +
 # with borders (slower)
-	geom_polygon(data = usa.df, aes(x = long, y = lat, group = group, fill = Top01_adj.y), 
+	geom_polygon(data = usa.df, aes(x = long, y = lat, group = group, fill = Top1_adj.y), 
 		color = "black", size = 0.15) +
 	scale_fill_distiller(palette = "Reds", breaks = brks, trans = "reverse") +
 	theme_nothing(legend = TRUE) +
 	labs(title = "Top01% 2012", fill = "") +
 	geom_text(data=statenames,aes(x,y,label = state.abb),color="blue",size=3)
-	
+
+# save plot as pdf file	
 ggsave(q, file = "top1_2012_map.pdf")
 
-# plot for year 2012 min = -6.715591 max =5.70185
+# plot for diff : 2012 -  1999 
 r <- ggplot() +
 # with borders (slower)
 	geom_polygon(data = usa.df, aes(x = long, y = lat, group = group, fill = diff), 
@@ -118,5 +139,5 @@ r <- ggplot() +
 	theme_nothing(legend = TRUE) +
 	labs(title = "Top01% Diff between 2012 and 1999", fill = "") +
 	geom_text(data=statenames,aes(x,y,label = state.abb),color="blue",size=3)
-	
+# save plot as pdf file	
 ggsave(r, file = "top1_diff_map.pdf")

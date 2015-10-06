@@ -1,15 +1,21 @@
 install.packages("xlsx")
+install.packages("car")
+# get all the library required 
+library(xlsx) # for reading from xlsx file
+library(car) # for using scatterplot
 
-library(xlsx)
-
+# get hpi data from the Rank Order Sheet 
 hpi.data <- read.xlsx("C:\\Users\\PRASHANT\\Downloads\\hpi-data.xlsx", sheetName ="Rank Order" , colIndex= 2:10, rowIndex =7:158)
+# Draw Histogram for Happy Planet Index to understand the distribution
 hist(hpi.data$Happy.Planet.Index)
+# Box Plot for happy Planet Index
+boxplot(hpi.data$Happy.Planet.Index)
 hpi.data.lifeexp <- hpi.data[,c("Life..Expectancy","Happy.Planet.Index")]
-plot(hpi.data.lifeexp, main="Life Expectancy and HPI", pch=19)
+scatterplot(hpi.data.lifeexp$Life..Expectancy,hpi.data.lifeexp$Happy.Planet.Index, xlab="Life Expectancy" , ylab="Happy Planet Index" )
 hpi.data.footprint <-hpi.data[,c("Footprint..gha.capita.","Happy.Planet.Index")]
-plot(hpi.data.footprint, main="Footprint Capita and HPI", pch=19)
+scatterplot(hpi.data.footprint$Footprint..gha.capita.,hpi.data.footprint$Happy.Planet.Index, xlab="Footprint Capita" , ylab="Happy Planet Index" )
 hpi.data.wellbeing<- hpi.data[,c("Well.being..0.10.","Happy.Planet.Index")]
-plot(hpi.data.wellbeing, main="WellBeing and HPI", pch=19)
+scatterplot(hpi.data.wellbeing$Well.being..0.10.,hpi.data.wellbeing$Happy.Planet.Index, xlab="Well Being" , ylab="Happy Planet Index" )
 
 # capturing correlation 
 cor(hpi.data$Footprint..gha.capita.,hpi.data$Happy.Planet.Index ,use ="everything", method = c("pearson"))
