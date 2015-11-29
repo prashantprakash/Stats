@@ -1,0 +1,70 @@
+---
+title: "MiniProj5"
+author: "Prashant Prakash"
+date: "November 29, 2015"
+output: word_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+# read data from csv file 
+data = read.csv("/Users/Prashant/Downloads/prostate_cancer.csv",header = TRUE , sep=",")
+
+# Plot scatter plot of PSA level with other variables 
+
+# with Cancer volume 
+plot(data$cancervol, data$psa, xlab="Cancer Volume", ylab="PSA Level")
+
+# with weight 
+plot(data$weight, data$psa, xlab="Weight", ylab="PSA Level")
+
+# with Age
+plot(data$age, data$psa, xlab="Age", ylab="PSA Level")
+
+# with Benign prostatic hyperplasia
+plot(data$benpros, data$psa, xlab="Benign prostatic hyperplasia", ylab="PSA Level")
+
+
+# with Capsular penetration
+plot(data$capspen, data$psa, xlab="Capsular penetration", ylab="PSA Level")
+
+
+# with Gleason score its a categorical variable  is this required ???
+plot(data$gleason, data$psa, xlab="Gleason score", ylab="PSA Level")
+
+# capturing correaltion coefficient to decide which varible is good for deciding PSA level 
+
+cor(data$psa,data$cancervol ,use ="everything", method =c("pearson"))
+cor(data$psa,data$weight ,use ="everything", method =c("pearson"))
+cor(data$psa,data$age ,use ="everything", method =c("pearson"))
+cor(data$psa,data$benpros ,use ="everything", method =c("pearson"))
+
+# clearly using correleation it's obvious Cancer volume is the candidate to do a better regression for PSA level 
+
+x <- data$cancervol
+y <- data$psa
+
+(psa.reg <- lm(y ~ x))
+plot(data$cancervol, data$psa, xlab="Cancer Volume", ylab="PSA Level")
+abline(psa.reg)
+
+confint(psa.reg)
+
+summary(psa.reg)
+
+x.new <- data.frame(x = median(data$cancervol))
+predict(psa.reg, newdata=x.new)
+
+
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
