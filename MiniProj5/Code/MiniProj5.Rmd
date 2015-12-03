@@ -82,6 +82,8 @@ confint(psa.reg)
 
 summary(psa.reg)
 
+anova(psa.reg)
+
 
 
 

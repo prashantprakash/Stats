@@ -15,8 +15,10 @@ When you click the **Knit** button a document will be generated that includes bo
 # read data from csv file 
 data = read.csv("/Users/Prashant/Downloads/prostate_cancer.csv",header = TRUE , sep=",") 
 attach(data)
-# check with all other variables keeping one variable as CancerVolume 
 
+psa.reg.canvervol <- lm(psa ~ cancervol , data = data)
+
+# check with all other variables keeping one variable as CancerVolume 
 # combination of cancer Volume and weight 
 psa.reg1 <- lm(psa ~ cancervol + weight)
 summary(psa.reg1)
@@ -80,12 +82,12 @@ anova(psa.reg4, psa.reg4.log)
 
 
 # Residual Plot
-plot(fitted(psa.reg4.log),resid(psa.reg4), main="RESIDUAL PLOT")
+plot(fitted(psa.reg4.log),resid(psa.reg4.log), main="RESIDUAL PLOT")
 abline(h=0)
 
 # QQ Plot
 qqnorm(resid(psa.reg4.log),main="QQPLOT")
-qqline(resid(psa.reg4))
+qqline(resid(psa.reg4.log))
 
 # Time Series plot
 
