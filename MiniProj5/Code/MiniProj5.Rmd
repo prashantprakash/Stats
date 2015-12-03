@@ -16,24 +16,26 @@ data = read.csv("/Users/Prashant/Downloads/prostate_cancer.csv",header = TRUE , 
 # Plot scatter plot of PSA level with other variables 
 
 # with Cancer volume 
-plot(data$cancervol, data$psa, xlab="Cancer Volume", ylab="PSA Level")
+plot(data$cancervol, data$psa, main= "PSA vs Cancer Volume", xlab="Cancer Volume", ylab="PSA Level")
+abline(lm(data$psa~data$cancervol))
 
 # with weight 
-plot(data$weight, data$psa, xlab="Weight", ylab="PSA Level")
+plot(data$weight, data$psa, main= "PSA vs Weight" , xlab="Weight", ylab="PSA Level")
+abline(lm(data$psa~data$weight))
+
 
 # with Age
-plot(data$age, data$psa, xlab="Age", ylab="PSA Level")
+plot(data$age, data$psa, main = "PSA vs Age" , xlab="Age", ylab="PSA Level")
+abline(lm(data$psa~data$age))
 
 # with Benign prostatic hyperplasia
-plot(data$benpros, data$psa, xlab="Benign prostatic hyperplasia", ylab="PSA Level")
-
+plot(data$benpros, data$psa, main = "PSA vs hyperplasia", xlab="Benign prostatic hyperplasia", ylab="PSA Level")
+abline(lm(data$psa~data$benpros))
 
 # with Capsular penetration
-plot(data$capspen, data$psa, xlab="Capsular penetration", ylab="PSA Level")
+plot(data$capspen, data$psa, main="PSA vs Capsular penetration" ,xlab="Capsular penetration", ylab="PSA Level")
+abline(lm(data$psa~data$capspen))
 
-
-# with Gleason score its a categorical variable  is this required ???
-plot(data$gleason, data$psa, xlab="Gleason score", ylab="PSA Level")
 
 # capturing correaltion coefficient to decide which varible is good for deciding PSA level 
 
@@ -41,6 +43,25 @@ cor(data$psa,data$cancervol ,use ="everything", method =c("pearson"))
 cor(data$psa,data$weight ,use ="everything", method =c("pearson"))
 cor(data$psa,data$age ,use ="everything", method =c("pearson"))
 cor(data$psa,data$benpros ,use ="everything", method =c("pearson"))
+cor(data$psa,data$capspen ,use ="everything", method =c("pearson"))
+
+
+# Also we can check R Square to decide on which can be good for deciding PSA level 
+
+psa.reg.canvervol <- lm(data$psa ~ data$cancervol , data = data)
+summary(psa.reg.canvervol)
+psa.reg.weight <-  lm(data$psa ~ data$weight , data = data)
+summary(psa.reg.weight)
+psa.reg.age <- lm(data$psa ~ data$age , data = data)
+summary(psa.reg.age)
+psa.reg.benpros <- lm(data$psa ~ data$benpros , data = data)
+summary(psa.reg.benpros)
+psa.reg.capspen <- lm(data$psa ~ data$capspen , data = data)
+summary(psa.reg.capspen)
+
+
+
+
 
 # clearly using correleation it's obvious Cancer volume is the candidate to do a better regression for PSA level 
 
@@ -48,16 +69,60 @@ x <- data$cancervol
 y <- data$psa
 
 (psa.reg <- lm(y ~ x))
+
 plot(data$cancervol, data$psa, xlab="Cancer Volume", ylab="PSA Level")
 abline(psa.reg)
+# after plot point out three outliers in the plot 
+
+
+
+# Regression Diagnositics on Cancer Volume vs PSA
 
 confint(psa.reg)
 
 summary(psa.reg)
 
+
+
+
+# Check for errors for zero mean and constant variance , normality and independence of residual error 
+
+plot(fitted(psa.reg),resid(psa.reg), main="RESIDUAL PLOT")
+abline(h=0)
+
+qqnorm(resid(psa.reg),main="QQPLOT")
+qqline(resid(psa.reg))
+
+plot(resid(psa.reg), type="l",main="Time Series Plot")
+abline(h=0)
+
+# Do Log transform to provide a better fit 
+
+psa.log <- log(data$psa)
+cancervol.log <- log(data$cancervol)
+reg.log.transformed <- lm(psa.log ~ cancervol.log)
+
+summary(reg.log.transformed)
+
+# Check for errors for zero mean and constant variance , normality and independence of residual error 
+
+plot(fitted(reg.log.transformed),resid(reg.log.transformed), main="RESIDUAL PLOT")
+abline(h=0)
+
+qqnorm(resid(reg.log.transformed),main="QQPLOT")
+qqline(resid(reg.log.transformed))
+
+plot(resid(reg.log.transformed), type="l",main="Time Series Plot")
+abline(h=0)
+
+
+# prediction of PSA for mean of cancer volume
+
 x.new <- data.frame(x = median(data$cancervol))
 predict(psa.reg, newdata=x.new)
 
+# prediction of PSA for mean of log transformed cancer volume 
+log.predict<- exp(1)^predict(reg.log.transformed,data.frame(cancervol.log=log(median(data$cancervol))))
 
 ```
 

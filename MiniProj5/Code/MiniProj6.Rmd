@@ -1,0 +1,130 @@
+---
+title: "MiniProj6"
+author: "Prashant Prakash"
+date: "December 3, 2015"
+output: word_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+# since one variable is already picked in project 5 so we will check with different combinations of this variable with other variable available 
+
+# read data from csv file 
+data = read.csv("/Users/Prashant/Downloads/prostate_cancer.csv",header = TRUE , sep=",") 
+attach(data)
+# check with all other variables keeping one variable as CancerVolume 
+
+# combination of cancer Volume and weight 
+psa.reg1 <- lm(psa ~ cancervol + weight)
+summary(psa.reg1)
+anova(psa.reg1)
+
+# combination of cancer Volume and age 
+psa.reg2 <- lm(psa ~ cancervol + age)
+summary(psa.reg2)
+anova(psa.reg2)
+
+# combination of cancer volume and benpros 
+
+psa.reg3 <- lm(psa ~ cancervol + benpros)
+summary(psa.reg3)
+anova(psa.reg3)
+
+# combination of cancer volume and vesinv 
+
+psa.reg4 <- lm(psa ~ cancervol + factor(vesinv)) 
+summary(psa.reg4)
+anova(psa.reg4)
+
+# combination of cancer volume and capspen
+
+psa.reg5 <- lm(psa ~ cancervol + capspen)
+summary(psa.reg5)
+anova(psa.reg5)
+
+# combination of cancer volume and gleason 
+
+psa.reg6 <- lm(psa ~ cancervol + gleason)
+summary(psa.reg6)
+anova(psa.reg6)
+
+
+# clearly after comparsion of all regression models we find that mode with cancervol and vesinv is best among all 
+
+#Check for errors whether they have mean zero constant variance,normality and independence of residual error
+# Residual Plot
+plot(fitted(psa.reg4),resid(psa.reg4), main="RESIDUAL PLOT")
+abline(h=0)
+
+# QQ Plot
+qqnorm(resid(psa.reg4),main="QQPLOT")
+qqline(resid(psa.reg4))
+
+# Time Series plot
+
+plot(resid(psa.reg4), type="l",main="Time Series Plot")
+abline(h=0)
+
+
+# do the log transformation
+
+log.psa<-log(data$psa)
+cancervol.log<-log(data$cancervol)
+vesinv<-(data$vesinv)
+psa.reg4.log<-lm(log.psa ~cancervol.log + factor(vesinv))
+
+anova(psa.reg4, psa.reg4.log)
+
+
+# Residual Plot
+plot(fitted(psa.reg4.log),resid(psa.reg4), main="RESIDUAL PLOT")
+abline(h=0)
+
+# QQ Plot
+qqnorm(resid(psa.reg4.log),main="QQPLOT")
+qqline(resid(psa.reg4))
+
+# Time Series plot
+
+plot(resid(psa.reg4.log), type="l",main="Time Series Plot")
+abline(h=0)
+
+# log transformation 
+
+z1<-log(data$psa)
+z2<-log(data$cancervol)
+z3<-(data$vesinv)
+
+psa.reg4.log <- lm(z1 ~z2 + factor(z3))
+summary(psa.reg4.log)
+anova(psa.reg4.log)
+
+
+
+
+# prediction with model wothout any transformation
+x.new <- data.frame(cancervol = median(data$cancervol), vesinv = median(data$vesinv))
+predict(psa.reg4, newdata=x.new)
+
+# prediction with model with log transformation 
+log.predict<- exp(1)^predict(psa.reg4.log,data.frame(z2=log(median(data$cancervol)), z3 = median(data$vesinv)))
+log.predict
+
+
+
+
+
+```
+
+
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
